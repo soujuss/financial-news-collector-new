@@ -86,7 +86,8 @@ class Formatter:
         sentiment_html = ""
         if "market_sentiment" in data:
             sentiment_html = f"""
-            <div class="sentiment-box glass-effect">
+            <div class="sentiment-box glass-effect has-select selected" data-card-type="sentiment">
+                <div class="card-select-indicator"></div>
                 <div class="box-header"><span class="icon">📈</span> 市场情绪与宏观综述</div>
                 <div class="box-content">{data['market_sentiment']}</div>
             </div>
@@ -111,7 +112,8 @@ class Formatter:
                         articles_links = f'<div class="ref-links"><span class="ref-label">相关报道:</span> {"".join(links)}</div>'
 
                 theme_cards += f"""
-                <div class="theme-card">
+                <div class="theme-card has-select selected" data-card-type="theme">
+                    <div class="card-select-indicator"></div>
                     <div class="theme-header">
                         <div class="theme-title-wrapper">
                             <span class="theme-title">{theme.get('title')}</span>
@@ -153,7 +155,8 @@ class Formatter:
                     article_info = f'<a href="{art.url}" target="_blank" class="flash-source">{art.source} ↗</a>'
 
                 flash_items += f"""
-                <div class="flash-item">
+                <div class="flash-item has-select selected" data-card-type="flash">
+                    <div class="card-select-indicator"></div>
                     <div class="flash-content">
                         <div class="flash-title">
                             {item.get('title')} {article_info}
@@ -615,6 +618,318 @@ class Formatter:
                         font-size: 14px;
                     }}
                 }}
+
+                /* Screenshot Feature Styles */
+                .ai-toolbar {{
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 12px;
+                    padding: 16px 20px;
+                    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+                    border: 1px solid #bae6fd;
+                    border-radius: 12px;
+                    margin-bottom: 24px;
+                    position: sticky;
+                    top: 20px;
+                    z-index: 100;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }}
+                .toolbar-left {{
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    flex-wrap: wrap;
+                }}
+                .toolbar-right {{
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }}
+                .selected-count {{
+                    font-size: 14px;
+                    color: #475569;
+                }}
+                .selected-count strong {{
+                    color: #2563eb;
+                }}
+
+                /* Card Selection Checkbox */
+                .card-select-wrapper {{
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    cursor: pointer;
+                    user-select: none;
+                }}
+                .card-select-checkbox {{
+                    width: 20px;
+                    height: 20px;
+                    border: 2px solid #cbd5e1;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.2s;
+                    flex-shrink: 0;
+                }}
+                .card-select-checkbox svg {{
+                    width: 14px;
+                    height: 14px;
+                    stroke: white;
+                    stroke-width: 3;
+                    fill: none;
+                    opacity: 0;
+                    transition: opacity 0.2s;
+                }}
+                .card-select-wrapper:hover .card-select-checkbox {{
+                    border-color: #2563eb;
+                }}
+                .card-select-wrapper.active .card-select-checkbox {{
+                    background: #2563eb;
+                    border-color: #2563eb;
+                }}
+                .card-select-wrapper.active .card-select-checkbox svg {{
+                    opacity: 1;
+                }}
+                .card-select-label {{
+                    font-size: 14px;
+                    color: #475569;
+                }}
+
+                /* Card Select Indicator (for cards) */
+                .card-select-indicator {{
+                    position: absolute;
+                    top: 12px;
+                    right: 12px;
+                    width: 22px;
+                    height: 22px;
+                    border: 2px solid #cbd5e1;
+                    border-radius: 4px;
+                    background: white;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    z-index: 5;
+                }}
+                .card-select-indicator::after {{
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%) scale(0);
+                    width: 12px;
+                    height: 12px;
+                    background: #2563eb;
+                    border-radius: 2px;
+                    transition: transform 0.2s;
+                }}
+                .theme-card.selected .card-select-indicator,
+                .flash-item.selected .card-select-indicator,
+                .sentiment-box.selected .card-select-indicator {{
+                    border-color: #2563eb;
+                }}
+                .theme-card.selected .card-select-indicator::after,
+                .flash-item.selected .card-select-indicator::after,
+                .sentiment-box.selected .card-select-indicator::after {{
+                    transform: translate(-50%, -50%) scale(1);
+                }}
+                .sentiment-box .card-select-indicator {{
+                    top: 16px;
+                }}
+
+                /* Screenshot Button */
+                .screenshot-btn {{
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+                }}
+                .screenshot-btn:hover {{
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+                }}
+                .screenshot-btn:active {{
+                    transform: translateY(0);
+                }}
+                }}
+                .screenshot-btn:disabled {{
+                    background: #94a3b8;
+                    cursor: not-allowed;
+                    transform: none;
+                    box-shadow: none;
+                }}
+                .screenshot-btn .spinner {{
+                    animation: spin 1s linear infinite;
+                }}
+                @keyframes spin {{
+                    from {{ transform: rotate(0deg); }}
+                    to {{ transform: rotate(360deg); }}
+                }}
+
+                /* Card Selected State */
+                .theme-card, .flash-item {{
+                    transition: all 0.3s ease;
+                }}
+                .theme-card.has-select, .flash-item.has-select {{
+                    cursor: pointer;
+                    border: 2px solid transparent;
+                }}
+                .theme-card.has-select:hover, .flash-item.has-select:hover {{
+                    border-color: #e2e8f0;
+                }}
+                .theme-card.selected, .flash-item.selected {{
+                    border-color: #2563eb;
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                }}
+                .theme-card.excluded, .flash-item.excluded {{
+                    visibility: hidden;
+                    position: absolute;
+                    width: 0;
+                    height: 0;
+                    padding: 0;
+                    margin: 0;
+                    overflow: hidden;
+                }}
+
+                /* Modal */
+                .modal {{
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.7);
+                    z-index: 1000;
+                    backdrop-filter: blur(4px);
+                }}
+                .modal.active {{
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }}
+                .modal-content {{
+                    background: white;
+                    border-radius: 16px;
+                    max-width: 90%;
+                    max-height: 90%;
+                    overflow: auto;
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+                }}
+                .modal-header {{
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 20px 24px;
+                    border-bottom: 1px solid #e2e8f0;
+                }}
+                .modal-header h3 {{
+                    margin: 0;
+                    font-size: 18px;
+                    color: #0f172a;
+                }}
+                .modal-close {{
+                    background: none;
+                    border: none;
+                    font-size: 28px;
+                    color: #64748b;
+                    cursor: pointer;
+                    line-height: 1;
+                }}
+                .modal-close:hover {{
+                    color: #0f172a;
+                }}
+                .modal-body {{
+                    padding: 24px;
+                    text-align: center;
+                    background: #f8fafc;
+                }}
+                .modal-body img {{
+                    max-width: 100%;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }}
+                .modal-footer {{
+                    display: flex;
+                    gap: 12px;
+                    justify-content: center;
+                    padding: 20px 24px;
+                    border-top: 1px solid #e2e8f0;
+                }}
+                .btn-primary, .btn-secondary {{
+                    padding: 10px 24px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                }}
+                .btn-primary {{
+                    background: #2563eb;
+                    color: white;
+                    border: none;
+                }}
+                .btn-primary:hover {{
+                    background: #1d4ed8;
+                }}
+                .btn-secondary {{
+                    background: white;
+                    color: #475569;
+                    border: 1px solid #cbd5e1;
+                }}
+                .btn-secondary:hover {{
+                    background: #f8fafc;
+                }}
+                .toast {{
+                    position: fixed;
+                    bottom: 30px;
+                    left: 50%;
+                    transform: translateX(-50%) translateY(100px);
+                    background: #0f172a;
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    opacity: 0;
+                    transition: all 0.3s;
+                    z-index: 1001;
+                }}
+                .toast.show {{
+                    transform: translateX(-50%) translateY(0);
+                    opacity: 1;
+                }}
+
+                /* Dedicated Screenshot Container (Mobile Optimized) */
+                #capture-container {{
+                    position: fixed;
+                    left: -9999px;
+                    top: 0;
+                    width: 375px;
+                    background: #ffffff;
+                    padding: 16px;
+                    box-sizing: border-box;
+                }}
+
+                /* Mobile-optimized capture card style */
+                .capture-card {{
+                    margin-bottom: 16px;
+                    background: #fff;
+                    border-radius: 12px;
+                    overflow: hidden;
+                }}
             </style>
         </head>
         <body>
@@ -634,8 +949,65 @@ class Formatter:
                 <div class="tab-content">
                     <!-- Tab 1: AI Analysis -->
                     <div id="ai-analysis" class="tab-pane active">
+                        <!-- Screenshot Toolbar -->
+                        <div class="ai-toolbar" id="ai-toolbar">
+                            <div class="toolbar-left">
+                                <label class="card-select-wrapper" data-card="sentiment">
+                                    <div class="card-select-checkbox">
+                                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    </div>
+                                    <span class="card-select-label">市场综述</span>
+                                </label>
+                                <label class="card-select-wrapper" data-card="themes">
+                                    <div class="card-select-checkbox">
+                                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    </div>
+                                    <span class="card-select-label">深度专题</span>
+                                </label>
+                                <label class="card-select-wrapper" data-card="flash">
+                                    <div class="card-select-checkbox">
+                                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    </div>
+                                    <span class="card-select-label">资讯速递</span>
+                                </label>
+                            </div>
+                            <div class="toolbar-right">
+                                <span class="selected-count">已选择 <strong id="selected-count">3</strong> 项</span>
+                                <button id="screenshot-btn" class="screenshot-btn">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    生成长截图
+                                </button>
+                            </div>
+                        </div>
+
                         {ai_html if ai_html else '<p style="color: var(--text-muted); text-align: center; padding: 40px;">暂无 AI 分析数据</p>'}
                     </div>
+
+                    <!-- Screenshot Modal -->
+                    <div id="screenshot-modal" class="modal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>截图预览</h3>
+                                <button class="modal-close">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <img id="screenshot-preview" src="" alt="截图预览">
+                            </div>
+                            <div class="modal-footer">
+                                <button id="copy-btn" class="btn-primary">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制图片
+                                </button>
+                                <button id="download-btn" class="btn-secondary">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    下载 PNG
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Toast -->
+                    <div id="toast" class="toast"></div>
 
                     <!-- Tab 2: All Articles -->
                     <div id="all-articles" class="tab-pane">
@@ -648,6 +1020,7 @@ class Formatter:
                 </div>
             </div>
 
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
             <script>
                 // Tab switching logic
                 document.querySelectorAll('.tab-btn').forEach(btn => {{
@@ -669,7 +1042,333 @@ class Formatter:
                 if (window.location.hash === '#articles') {{
                     document.querySelector('[data-tab="all-articles"]').click();
                 }}
+
+                // ============ Screenshot Feature ============
+                (function() {{
+                    'use strict';
+
+                    const ScreenshotManager = {{
+                        selectedCards: new Set(),
+                        currentImageData: null,
+
+                        init: function() {{
+                            this.cacheElements();
+                            this.bindEvents();
+                            this.selectAllCards();
+                            this.updateCount();
+                        }},
+
+                        cacheElements: function() {{
+                            this.toolbar = document.getElementById('ai-toolbar');
+                            this.screenshotBtn = document.getElementById('screenshot-btn');
+                            this.modal = document.getElementById('screenshot-modal');
+                            this.previewImg = document.getElementById('screenshot-preview');
+                            this.copyBtn = document.getElementById('copy-btn');
+                            this.downloadBtn = document.getElementById('download-btn');
+                            this.toast = document.getElementById('toast');
+                            this.aiAnalysis = document.getElementById('ai-analysis');
+                            this.captureContainer = document.getElementById('capture-container');
+                        }},
+
+                        bindEvents: function() {{
+                            var self = this;
+
+                            // Card selection toggles
+                            document.querySelectorAll('.card-select-wrapper').forEach(function(wrapper) {{
+                                wrapper.addEventListener('click', function(e) {{
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    var cardType = this.getAttribute('data-card');
+                                    if (cardType) {{
+                                        self.toggleCardType(cardType);
+                                    }}
+                                }});
+                            }});
+
+                            // Individual card selection
+                            document.querySelectorAll('.sentiment-box, .theme-card, .flash-item').forEach(function(card) {{
+                                card.addEventListener('click', function() {{
+                                    self.toggleCard(this);
+                                }});
+                            }});
+
+                            // Screenshot button
+                            this.screenshotBtn.addEventListener('click', function() {{
+                                self.captureScreenshot();
+                            }});
+
+                            // Modal close
+                            document.querySelector('.modal-close').addEventListener('click', function() {{
+                                self.closeModal();
+                            }});
+
+                            this.copyBtn.addEventListener('click', function() {{
+                                self.copyToClipboard();
+                            }});
+
+                            this.downloadBtn.addEventListener('click', function() {{
+                                self.downloadImage();
+                            }});
+
+                            // Close modal on background click
+                            this.modal.addEventListener('click', function(e) {{
+                                if (e.target === self.modal) {{
+                                    self.closeModal();
+                                }}
+                            }});
+                        }},
+
+                        toggleCardType: function(cardType) {{
+                            var wrappers = document.querySelectorAll('.card-select-wrapper[data-card="' + cardType + '"]');
+                            var cards = document.querySelectorAll('[data-card-type="' + cardType + '"]');
+
+                            // Check if all cards of this type are selected
+                            var allSelected = true;
+                            cards.forEach(function(card) {{
+                                if (!this.selectedCards.has(card)) {{
+                                    allSelected = false;
+                                }}
+                            }}.bind(this));
+
+                            // Toggle
+                            wrappers.forEach(function(wrapper) {{
+                                if (allSelected) {{
+                                    wrapper.classList.remove('active');
+                                }} else {{
+                                    wrapper.classList.add('active');
+                                }}
+                            }});
+
+                            cards.forEach(function(card) {{
+                                if (allSelected) {{
+                                    card.classList.remove('selected');
+                                    this.selectedCards.delete(card);
+                                }} else {{
+                                    card.classList.add('selected');
+                                    this.selectedCards.add(card);
+                                }}
+                            }}.bind(this));
+
+                            this.updateCount();
+                        }},
+
+                        toggleCard: function(card) {{
+                            if (this.selectedCards.has(card)) {{
+                                card.classList.remove('selected');
+                                this.selectedCards.delete(card);
+                            }} else {{
+                                card.classList.add('selected');
+                                this.selectedCards.add(card);
+                            }}
+                            this.updateCount();
+                            // Update toolbar checkbox based on card type
+                            this.updateToolbarCheckbox(card.getAttribute('data-card-type'));
+                        }},
+
+                        selectAllCards: function() {{
+                            document.querySelectorAll('.has-select').forEach(function(card) {{
+                                card.classList.add('selected');
+                                this.selectedCards.add(card);
+                            }}.bind(this));
+                            // Update all toolbar checkboxes
+                            this.updateToolbarCheckbox('sentiment');
+                            this.updateToolbarCheckbox('themes');
+                            this.updateToolbarCheckbox('flash');
+                        }},
+
+                        deselectAllCards: function() {{
+                            document.querySelectorAll('.has-select').forEach(function(card) {{
+                                card.classList.remove('selected');
+                                this.selectedCards.delete(card);
+                            }}.bind(this));
+                            // Update all toolbar checkboxes
+                            this.updateToolbarCheckbox('sentiment');
+                            this.updateToolbarCheckbox('themes');
+                            this.updateToolbarCheckbox('flash');
+                        }},
+
+                        updateCount: function() {{
+                            var count = this.selectedCards.size;
+                            var countEl = document.getElementById('selected-count');
+                            if (countEl) {{
+                                countEl.textContent = count;
+                            }}
+                            this.screenshotBtn.disabled = count === 0;
+                        }},
+
+                        updateToolbarCheckbox: function(cardType) {{
+                            var wrappers = document.querySelectorAll('.card-select-wrapper[data-card="' + cardType + '"]');
+                            var cards = document.querySelectorAll('[data-card-type="' + cardType + '"]');
+                            var allSelected = true;
+
+                            cards.forEach(function(card) {{
+                                if (!this.selectedCards.has(card)) {{
+                                    allSelected = false;
+                                }}
+                            }}.bind(this));
+
+                            wrappers.forEach(function(wrapper) {{
+                                if (allSelected) {{
+                                    wrapper.classList.add('active');
+                                }} else {{
+                                    wrapper.classList.remove('active');
+                                }}
+                            }});
+                        }},
+
+                        hideUnselectedCards: function() {{
+                            document.querySelectorAll('.has-select').forEach(function(card) {{
+                                if (!this.selectedCards.has(card)) {{
+                                    card.classList.add('excluded');
+                                }}
+                            }}.bind(this));
+                        }},
+
+                        showAllCards: function() {{
+                            document.querySelectorAll('.has-select.excluded').forEach(function(card) {{
+                                card.classList.remove('excluded');
+                            }});
+                        }},
+
+                        showToast: function(message) {{
+                            this.toast.textContent = message;
+                            this.toast.classList.add('show');
+                            setTimeout(function() {{
+                                this.toast.classList.remove('show');
+                            }}.bind(this), 2000);
+                        }},
+
+                        // Mobile-optimized: Prepare cards in dedicated container
+                        preCapture: function() {{
+                            var container = this.captureContainer;
+                            if (!container) return;
+
+                            // Clear previous content
+                            container.innerHTML = '';
+
+                            // Clone selected cards to capture container
+                            this.selectedCards.forEach(function(card) {{
+                                var clone = card.cloneNode(true);
+
+                                // Remove selection indicator
+                                var indicator = clone.querySelector('.card-select-indicator');
+                                if (indicator) indicator.remove();
+
+                                // Remove selection-related classes
+                                clone.classList.remove('selected', 'has-select', 'excluded');
+
+                                // Convert position:fixed to relative (html2canvas fix)
+                                clone.querySelectorAll('*').forEach(function(el) {{
+                                    var style = window.getComputedStyle(el);
+                                    if (style.position === 'fixed') {{
+                                        el.style.position = 'relative';
+                                    }}
+                                }});
+
+                                // Wrap in capture-card for mobile optimization
+                                var wrapper = document.createElement('div');
+                                wrapper.className = 'capture-card';
+                                wrapper.appendChild(clone);
+                                container.appendChild(wrapper);
+                            }});
+                        }},
+
+                        captureScreenshot: function() {{
+                            var self = this;
+                            var btn = this.screenshotBtn;
+                            var originalHTML = btn.innerHTML;
+
+                            btn.innerHTML = '<svg class="spinner" viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="30 60"/></svg> 生成中...';
+                            btn.disabled = true;
+
+                            // Prepare cards in dedicated container
+                            this.preCapture();
+
+                            // Use the cached capture container
+                            var container = this.captureContainer;
+                            if (!container || container.children.length === 0) {{
+                                this.showToast('请先选择要截图的卡片');
+                                btn.innerHTML = originalHTML;
+                                btn.disabled = false;
+                                return;
+                            }}
+
+                            // Use dedicated container for capture
+                            html2canvas(container, {{
+                                useCORS: true,
+                                allowTaint: true,
+                                backgroundColor: '#ffffff',
+                                scale: 2,  // Retina quality
+                                width: 375,  // Mobile width
+                                logging: false
+                            }}).then(function(canvas) {{
+                                // Show preview
+                                self.currentImageData = canvas.toDataURL('image/png', 1.0);
+                                self.previewImg.src = self.currentImageData;
+                                self.modal.classList.add('active');
+
+                                // Mobile: show long-press hint
+                                if (/Mobile|Android|iPhone/i.test(navigator.userAgent)) {{
+                                    self.showToast('长按图片保存到相册');
+                                }}
+                            }}).catch(function(error) {{
+                                console.error('Screenshot failed:', error);
+                                self.showToast('截图失败，请重试');
+                            }}).finally(function() {{
+                                btn.innerHTML = originalHTML;
+                                btn.disabled = self.selectedCards.size === 0;
+                            }});
+                        }},
+
+                        closeModal: function() {{
+                            this.modal.classList.remove('active');
+                        }},
+
+                        downloadImage: function() {{
+                            if (!this.currentImageData) return;
+
+                            var link = document.createElement('a');
+                            var date = new Date().toISOString().slice(0, 10);
+                            link.download = '金融早报-AI分析-' + date + '.png';
+                            link.href = this.currentImageData;
+                            link.click();
+                        }},
+
+                        copyToClipboard: function() {{
+                            var self = this;
+                            if (!this.currentImageData) return;
+
+                            // Convert data URL to blob
+                            fetch(this.currentImageData)
+                                .then(function(res) {{ return res.blob(); }})
+                                .then(function(blob) {{
+                                    var item = new ClipboardItem({{ 'image/png': blob }});
+                                    return navigator.clipboard.write([item]);
+                                }})
+                                .then(function() {{
+                                    self.showToast('已复制到剪贴板');
+                                    self.closeModal();
+                                }})
+                                .catch(function(error) {{
+                                    console.error('Copy failed:', error);
+                                    self.showToast('复制失败，请手动保存');
+                                }});
+                        }}
+                    }};
+
+                    // Initialize on DOM ready
+                    if (document.readyState === 'loading') {{
+                        document.addEventListener('DOMContentLoaded', function() {{
+                            ScreenshotManager.init();
+                        }});
+                    }} else {{
+                        ScreenshotManager.init();
+                    }}
+                }})();
             </script>
+
+            <!-- Dedicated Screenshot Container (Hidden, for Mobile Optimized Capture) -->
+            <div id="capture-container"></div>
         </body>
         </html>
         """
