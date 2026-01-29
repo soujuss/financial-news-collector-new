@@ -282,10 +282,11 @@ class NewsScheduler:
                     continue
 
             if reports:
+                # 直接生成 index.html（归档页）
                 archive_html = self.formatter.format_archive_page(reports)
-                archive_file = output_dir / "archive.html"
-                archive_file.write_text(archive_html, encoding='utf-8')
-                logger.info(f"已生成归档页: {archive_file} ({len(reports)} 期)")
+                index_file = output_dir / "index.html"
+                index_file.write_text(archive_html, encoding='utf-8')
+                logger.info(f"已生成归档页: {index_file} ({len(reports)} 期)")
 
         except Exception as e:
             logger.error(f"生成归档页失败: {e}")
