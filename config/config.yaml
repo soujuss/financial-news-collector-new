@@ -1,0 +1,104 @@
+# ============================================
+# 金融资讯定时爬取系统 - 主配置文件
+# ============================================
+
+# 数据库配置
+database:
+  path: "data/news.db"
+
+# 爬虫配置
+spider:
+  timeout: 10               # 请求超时时间(秒)
+  retry_times: 2            # 重试次数（减少以加快执行）
+  delay: 1.0                # 请求间隔(秒)
+  max_items_per_source: 15  # 每个来源最大爬取数量
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+  # Playwright配置
+  playwright:
+    headless: true          # 无头模式
+    stealth: true           # 启用stealth反检测
+    wait_time: 2            # 基础等待时间(秒)
+    proxy:
+      enabled: false        # 是否启用代理 (全局设置)
+      url: "http://127.0.0.1:7897"  # 代理地址
+
+  # Scrapy代理配置
+  proxy:
+    enabled: false          # Scrapy爬虫是否使用代理
+    url: "http://127.0.0.1:7897"
+
+# 定时配置
+scheduler:
+  type: "apscheduler"
+  trigger: "cron"
+  hour: 8                   # 每天早上8点
+  minute: 0
+  day: "*"
+  month: "*"
+  day_of_week: "*"
+
+# 通知配置
+notifiers:
+  # 邮件通知
+  email:
+    enabled: false
+    smtp_host: "smtp.example.com"
+    smtp_port: 465
+    smtp_ssl: true
+    username: "your@email.com"
+    password: "your_password"
+    from_name: "金融资讯机器人"
+    to:
+      - "user@example.com"
+
+  # Telegram通知
+  telegram:
+    enabled: true
+    bot_token: "${TELEGRAM_BOT_TOKEN}"  # 从环境变量读取
+    chat_id: "${TELEGRAM_CHAT_ID}"      # 从环境变量读取
+    parse_mode: "Markdown"
+
+  # 企业微信通知
+  wechat:
+    enabled: false
+    webhook_url: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your_key"
+
+# AI 配置 (MiniMax via Anthropic SDK)
+ai:
+  enabled: true
+  provider: "anthropic"
+  # MiniMax API Base URL for Anthropic compatibility usually defaults or needs specific handling if not standard. 
+  # According to user example, client = anthropic.Anthropic(). It might rely on env vars or default.
+  # If MiniMax supports Anthropic SDK standardly, we might just need api_key and base_url if different.
+  # However, standard Anthropic client uses https://api.anthropic.com.
+  # If MiniMax has a compatible endpoint, we set base_url.
+  # User example doesn't show base_url, implying it might be standard or handled via env vars?
+  # Wait, user said "通过 Anthropic API 兼容". Usually this means setting base_url.
+  # Let's assume standard env vars loading for now or set explicit base_url if known.
+  # User example: client = anthropic.Anthropic().
+  # Standard Anthropic SDK reads ANTHROPIC_API_KEY.
+  # If using MiniMax via this SDK, we likely need to point to MiniMax endpoint if it's not native Anthropic.
+  # BUT, the user snippet creates `client = anthropic.Anthropic()`.
+  # If MiniMax exposes an Anthropic-compatible API at a specific URL, we need `base_url`.
+  # If the user implies MiniMax *is* the provider behind the scene (e.g. via some proxy), or if they want me to configure it.
+  # Let's look closely at the snippet. It just says `model="MiniMax-M2.1"`.
+  # Typically this implies using the official Anthropic client but pointing to a different backend OR MiniMax supports this native SDK.
+  # Let's check if `anthropic` client supports base_url override easily. Yes it does.
+  # I will set it to what is common for MiniMax or keep it configurable.
+  # FOR NOW, I will use the `api_key` from config but key name might be ANTHROPIC_API_KEY or MINIMAX_API_KEY?
+  # I'll stick to a generic config structure.
+  
+  api_key: "${ANTHROPIC_API_KEY}" # 用户需设置环境变量
+  base_url: "https://api.minimaxi.com/anthropic" # MiniMax Anthropic 兼容端点 (CN)
+  model: "MiniMax-M2.1"
+  temperature: 0.3
+
+
+# 日志配置
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/news_collector.log"
+  max_size: "10MB"
+  backup_count: 5

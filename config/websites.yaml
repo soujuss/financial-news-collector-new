@@ -1,0 +1,109 @@
+# ============================================
+# 网站配置 - 财经资讯来源
+# ============================================
+
+# 财经资讯
+finance:
+  综合财经门户:
+    # - name: "东方财富网"
+    #   url: "https://www.eastmoney.com"
+    #   type: "playwright"
+    #   list_url: "https://finance.eastmoney.com/yaowen.html"
+    #   list_selector: "#artitileList1 a"
+    #   use_stealth: true
+    #   wait_time: 3
+    #   exclude_patterns:
+    #     - "acttg.eastmoney.com"   # 广告推广
+    #     - "fund.eastmoney.com"    # 基金导航页
+    #     - "js1.eastmoney.com"     # 推广链接
+    #     - "favor.fund.eastmoney.com"  # 自选基金
+
+    # - name: "新浪财经"
+    #   url: "https://finance.sina.com.cn"
+    #   type: "scrapy"
+    #   list_url: "https://finance.sina.com.cn/stock/"
+    #   list_selector: "a[href*='doc-'][href*='.shtml']"
+    #   exclude_patterns:
+    #     - "vip.stock"             # VIP广告
+    #     - "down"                  # 下载
+
+
+    - name: "财新网"
+      url: "https://www.caixin.com"
+      type: "playwright"
+      list_url: "https://www.caixin.com/news/"
+      list_selector: "a[href*='caixin.com/202']"
+      use_stealth: true
+      wait_time: 3
+      exclude_patterns:
+        - "fund"                  # 基金广告
+        - "video"                 # 视频
+        - "opinion"               # 观点频道
+
+    # - name: "证券时报网"
+    #   url: "https://www.stcn.com"
+    #   type: "scrapy"
+    #   list_url: "https://www.stcn.com/"
+    #   list_selector: ".box-content a[href*='article/detail']"
+    #   exclude_patterns:
+    #     - "pdf"                   # PDF下载
+
+
+    - name: "第一财经"
+      url: "https://www.yicai.com"
+      type: "scrapy"
+      list_url: "https://www.yicai.com/"
+      list_selector: "a[href*='/news/'][href*='.html']"
+      exclude_patterns:
+        - "video"                 # 视频页
+        - "live"                  # 直播页
+
+    - name: "21世纪经济报道"
+      url: "https://www.21jingji.com"
+      type: "scrapy"
+      list_url: "https://www.21jingji.com/"
+      list_selector: ".news-list a[href*='article'], .article-item a[href*='article']"
+      exclude_patterns:
+        - "pdf"                   # PDF
+
+  # 国际财经媒体:
+  #   - name: "FT中文网"
+  #     url: "https://www.ftchinese.com"
+  #     type: "playwright"
+  #     list_url: "https://www.ftchinese.com/"
+  #     list_selector: "a[href*='/articles/']"
+  #     use_stealth: true
+  #     use_proxy: true
+  #     wait_time: 10
+
+  全球财经资讯:
+    - name: "金十数据"
+      url: "https://xnews.jin10.com"
+      type: "playwright"
+      list_url: "https://xnews.jin10.com/"
+      list_selector: "a[href*='/details/']"
+      use_stealth: true
+      wait_time: 5
+      exclude_patterns:
+        - "vip"                   # VIP专属（摘要不可用）
+
+    - name: "华尔街见闻"
+      url: "https://wallstreetcn.com"
+      type: "playwright"
+      list_url: "https://wallstreetcn.com/news/global"
+      list_selector: "a[href*='/articles/']"
+      use_stealth: true
+      wait_time: 5
+      exclude_patterns:
+        - "/member/"              # 会员专属
+
+    - name: "格隆汇"
+      url: "https://www.gelonghui.com"
+      type: "playwright"
+      list_url: "https://www.gelonghui.com/"
+      list_selector: "a[href*='/live/']"
+      use_stealth: true
+      wait_time: 3
+      exclude_patterns:
+        - "type=popular"          # 排除翻页链接
+        - "type=debenture"        # 债券分类

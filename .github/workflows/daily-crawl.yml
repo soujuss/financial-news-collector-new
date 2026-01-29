@@ -1,0 +1,72 @@
+name: Daily News Crawl & Pages
+
+on:
+  schedule:
+    - cron: '5 1 * * *'    # 每天 8:00
+    - cron: '30 14 * * *'  # 每天 22:30
+  # 手动触发
+  workflow_dispatch:
+  # 代码推送时触发（可选，用于测试）
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  crawl-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      # 1. 检出代码
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. 设置 Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # 3. 安装依赖
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          playwright install chromium
+
+      # 4. 运行爬取
+      - name: Run crawl
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python main.py run-once
+
+      # 5. 验证 outputs 目录
+      - name: Verify outputs
+        run: |
+          ls -la outputs/
+          echo "Files: $(ls outputs/ | wc -l)"
+
+      # 6. 上传 Pages artifact
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'outputs/'
+
+      # 7. 部署到 Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
