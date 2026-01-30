@@ -626,15 +626,15 @@ class Formatter:
                     align-items: center;
                     flex-wrap: wrap;
                     gap: 12px;
-                    padding: 16px 20px;
+                    padding: 12px 16px;
                     background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
                     border: 1px solid #bae6fd;
                     border-radius: 12px;
-                    margin-bottom: 24px;
+                    margin-bottom: 16px;
                     position: sticky;
-                    top: 20px;
+                    top: 0;
                     z-index: 100;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
                 }}
                 .toolbar-left {{
                     display: flex;
@@ -701,12 +701,12 @@ class Formatter:
                 /* Card Select Indicator (for cards) */
                 .card-select-indicator {{
                     position: absolute;
-                    top: 12px;
-                    right: 12px;
-                    width: 22px;
-                    height: 22px;
+                    top: 8px;
+                    right: 8px;
+                    width: 18px;
+                    height: 18px;
                     border: 2px solid #cbd5e1;
-                    border-radius: 4px;
+                    border-radius: 50%;
                     background: white;
                     cursor: pointer;
                     transition: all 0.2s;
@@ -718,10 +718,10 @@ class Formatter:
                     top: 50%;
                     left: 50%;
                     transform: translate(-50%, -50%) scale(0);
-                    width: 12px;
-                    height: 12px;
+                    width: 10px;
+                    height: 10px;
                     background: #2563eb;
-                    border-radius: 2px;
+                    border-radius: 50%;
                     transition: transform 0.2s;
                 }}
                 .theme-card.selected .card-select-indicator,
@@ -735,7 +735,8 @@ class Formatter:
                     transform: translate(-50%, -50%) scale(1);
                 }}
                 .sentiment-box .card-select-indicator {{
-                    top: 16px;
+                    top: 10px;
+                    right: 10px;
                 }}
 
                 /* Screenshot Button */
@@ -929,6 +930,16 @@ class Formatter:
                     background: #fff;
                     border-radius: 12px;
                     overflow: hidden;
+                }}
+
+                /* Screenshot title */
+                .capture-title {{
+                    font-size: 20px;
+                    font-weight: 700;
+                    text-align: center;
+                    padding: 16px 0;
+                    margin-bottom: 8px;
+                    color: #0f172a;
                 }}
             </style>
         </head>
@@ -1246,31 +1257,40 @@ class Formatter:
                             // Clear previous content
                             container.innerHTML = '';
 
-                            // Clone selected cards to capture container
-                            this.selectedCards.forEach(function(card) {{
-                                var clone = card.cloneNode(true);
+                            // Add title
+                            var title = document.createElement('div');
+                            title.className = 'capture-title';
+                            title.textContent = '金融早报';
+                            container.appendChild(title);
 
-                                // Remove selection indicator
-                                var indicator = clone.querySelector('.card-select-indicator');
-                                if (indicator) indicator.remove();
+                            // Clone selected cards in DOM order (maintains original order)
+                            var allCards = document.querySelectorAll('.has-select');
+                            allCards.forEach(function(card) {{
+                                if (this.selectedCards.has(card)) {{
+                                    var clone = card.cloneNode(true);
 
-                                // Remove selection-related classes
-                                clone.classList.remove('selected', 'has-select', 'excluded');
+                                    // Remove selection indicator
+                                    var indicator = clone.querySelector('.card-select-indicator');
+                                    if (indicator) indicator.remove();
 
-                                // Convert position:fixed to relative (html2canvas fix)
-                                clone.querySelectorAll('*').forEach(function(el) {{
-                                    var style = window.getComputedStyle(el);
-                                    if (style.position === 'fixed') {{
-                                        el.style.position = 'relative';
-                                    }}
-                                }});
+                                    // Remove selection-related classes
+                                    clone.classList.remove('selected', 'has-select', 'excluded');
 
-                                // Wrap in capture-card for mobile optimization
-                                var wrapper = document.createElement('div');
-                                wrapper.className = 'capture-card';
-                                wrapper.appendChild(clone);
-                                container.appendChild(wrapper);
-                            }});
+                                    // Convert position:fixed to relative (html2canvas fix)
+                                    clone.querySelectorAll('*').forEach(function(el) {{
+                                        var style = window.getComputedStyle(el);
+                                        if (style.position === 'fixed') {{
+                                            el.style.position = 'relative';
+                                        }}
+                                    }});
+
+                                    // Wrap in capture-card for mobile optimization
+                                    var wrapper = document.createElement('div');
+                                    wrapper.className = 'capture-card';
+                                    wrapper.appendChild(clone);
+                                    container.appendChild(wrapper);
+                                }}
+                            }}.bind(this));
                         }},
 
                         captureScreenshot: function() {{
