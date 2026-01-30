@@ -1346,10 +1346,12 @@ class Formatter:
                             // Clear previous content
                             container.innerHTML = '';
 
-                            // Add title
+                            // Add title with date
                             var title = document.createElement('div');
                             title.className = 'capture-title';
-                            title.textContent = '金融日报';
+                            var subtitleEl = document.querySelector('.report-subtitle');
+                            var dateText = subtitleEl ? subtitleEl.textContent : '';
+                            title.textContent = '金融日报 ' + dateText;
                             container.appendChild(title);
 
                             // Clone selected cards in DOM order (maintains original order)
