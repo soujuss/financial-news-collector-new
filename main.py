@@ -20,7 +20,6 @@ sys.path.insert(0, str(project_root))
 from src.config import config
 from src.scheduler import NewsScheduler
 from src.database import db
-from src.processors import Formatter
 
 
 def setup_logging():
@@ -179,25 +178,6 @@ def cmd_status(args):
         print(f"  {category}: {count} 篇")
 
 
-def cmd_report(args):
-    """生成报告"""
-    print("=" * 60)
-    print("资讯报告")
-    print("=" * 60)
-
-    days = args.days or 1
-    articles = db.get_recent_articles(days=days)
-
-    if not articles:
-        print(f"最近 {days} 天没有资讯")
-        return
-
-    formatter = Formatter()
-    report = formatter.format_daily_report(articles)
-
-    print(report)
-
-
 def cmd_notify(args):
     """手动发送通知"""
     print("=" * 60)
@@ -263,10 +243,6 @@ def main():
     # 状态命令
     subparsers.add_parser('status', help='查看系统状态')
 
-    # 报告命令
-    report_parser = subparsers.add_parser('report', help='生成资讯报告')
-    report_parser.add_argument('--days', type=int, default=1, help='最近天数(默认1)')
-
     # 通知命令
     notify_parser = subparsers.add_parser('notify', help='手动发送通知')
     notify_parser.add_argument('--days', type=int, default=1, help='最近天数(默认1)')
@@ -286,8 +262,6 @@ def main():
         cmd_daemon(args)
     elif args.command == 'status':
         cmd_status(args)
-    elif args.command == 'report':
-        cmd_report(args)
     elif args.command == 'notify':
         cmd_notify(args)
     else:
