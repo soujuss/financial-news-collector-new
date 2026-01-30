@@ -292,6 +292,70 @@ class Formatter:
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
                 }}
+                .mode-toggle-wrap {{
+                    margin-top: 16px;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                }}
+                .mode-switch {{
+                    position: relative;
+                    display: inline-block;
+                    width: 44px;
+                    height: 24px;
+                }}
+                .mode-switch input {{
+                    opacity: 0;
+                    width: 0;
+                    height: 0;
+                }}
+                .slider {{
+                    position: absolute;
+                    cursor: pointer;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: #94a3b8;
+                    transition: .3s;
+                    border-radius: 24px;
+                }}
+                .slider:before {{
+                    position: absolute;
+                    content: "";
+                    height: 18px;
+                    width: 18px;
+                    left: 3px;
+                    bottom: 3px;
+                    background-color: white;
+                    transition: .3s;
+                    border-radius: 50%;
+                }}
+                input:checked + .slider {{
+                    background-color: #2563eb;
+                }}
+                input:checked + .slider:before {{
+                    transform: translateX(20px);
+                }}
+                .mode-label {{
+                    font-size: 13px;
+                    color: #64748b;
+                }}
+                /* View mode: hide screenshot UI */
+                .view-mode .ai-toolbar,
+                .view-mode .card-select-wrapper,
+                .view-mode .selected-count,
+                .view-mode #screenshot-modal,
+                .view-mode .card-select-indicator {{
+                    display: none !important;
+                }}
+                .view-mode .sentiment-box,
+                .view-mode .theme-card,
+                .view-mode .flash-item {{
+                    cursor: default !important;
+                    border: none !important;
+                    box-shadow: none !important;
+                }}
 
                 /* Tab Navigation */
                 .tab-nav {{
@@ -943,11 +1007,15 @@ class Formatter:
                 }}
             </style>
         </head>
-        <body>
+        <body class="view-mode">
             <div class="main-container">
                 <div class="report-header">
                     <h1 class="report-title">金融日报</h1>
                     <div class="report-subtitle">{date_str}</div>
+                    <div class="mode-toggle-wrap">
+                        <label class="mode-switch"><input type="checkbox" id="mode-switch"><span class="slider"></span></label>
+                        <span class="mode-label">截屏模式</span>
+                    </div>
                 </div>
 
                 <!-- Tab Navigation -->
@@ -1065,8 +1133,17 @@ class Formatter:
                         init: function() {{
                             this.cacheElements();
                             this.bindEvents();
+                            this.initMode();
                             this.selectAllCards();
                             this.updateCount();
+                        }},
+
+                        initMode: function() {{
+                            var saved = localStorage.getItem('reportMode');
+                            if (saved === 'capture') {{
+                                document.body.classList.remove('view-mode');
+                                this.modeSwitch.checked = true;
+                            }}
                         }},
 
                         cacheElements: function() {{
@@ -1079,6 +1156,7 @@ class Formatter:
                             this.toast = document.getElementById('toast');
                             this.aiAnalysis = document.getElementById('ai-analysis');
                             this.captureContainer = document.getElementById('capture-container');
+                            this.modeSwitch = document.getElementById('mode-switch');
                         }},
 
                         bindEvents: function() {{
@@ -1125,6 +1203,17 @@ class Formatter:
                             this.modal.addEventListener('click', function(e) {{
                                 if (e.target === self.modal) {{
                                     self.closeModal();
+                                }}
+                            }});
+
+                            // Mode switch
+                            this.modeSwitch.addEventListener('change', function() {{
+                                if (this.checked) {{
+                                    document.body.classList.remove('view-mode');
+                                    localStorage.setItem('reportMode', 'capture');
+                                }} else {{
+                                    document.body.classList.add('view-mode');
+                                    localStorage.setItem('reportMode', 'view');
                                 }}
                             }});
                         }},
