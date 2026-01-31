@@ -1129,6 +1129,8 @@ class Formatter:
                     const ScreenshotManager = {{
                         selectedCards: new Set(),
                         currentImageData: null,
+                        currentBlob: null,
+                        currentObjectUrl: null,
 
                         init: function() {{
                             this.cacheElements();
@@ -1136,6 +1138,41 @@ class Formatter:
                             this.initMode();
                             this.selectAllCards();
                             this.updateCount();
+                        }},
+
+                        resetCaptureOutput: function() {{
+                            this.currentImageData = null;
+                            this.currentBlob = null;
+                            if (this.currentObjectUrl) {{
+                                try {{ URL.revokeObjectURL(this.currentObjectUrl); }} catch (e) {{}}
+                                this.currentObjectUrl = null;
+                            }}
+                            if (this.previewImg) {{
+                                this.previewImg.src = '';
+                            }}
+                        }},
+
+                        canvasToBlob: function(canvas) {{
+                            return new Promise(function(resolve, reject) {{
+                                if (canvas && canvas.toBlob) {{
+                                    canvas.toBlob(function(blob) {{
+                                        if (blob) return resolve(blob);
+                                        reject(new Error('toBlob returned null'));
+                                    }}, 'image/png', 1.0);
+                                    return;
+                                }}
+
+                                // Fallback: dataURL -> fetch -> blob
+                                try {{
+                                    var dataUrl = canvas.toDataURL('image/png', 1.0);
+                                    fetch(dataUrl)
+                                        .then(function(res) {{ return res.blob(); }})
+                                        .then(resolve)
+                                        .catch(reject);
+                                }} catch (e) {{
+                                    reject(e);
+                                }}
+                            }});
                         }},
 
                         initMode: function() {{
@@ -1394,6 +1431,7 @@ class Formatter:
 
                             // Prepare cards in dedicated container
                             this.preCapture();
+                            this.resetCaptureOutput();
 
                             // Use the cached capture container
                             var container = this.captureContainer;
@@ -1413,15 +1451,18 @@ class Formatter:
                                 width: 375,  // Mobile width
                                 logging: false
                             }}).then(function(canvas) {{
-                                // Show preview
-                                self.currentImageData = canvas.toDataURL('image/png', 1.0);
-                                self.previewImg.src = self.currentImageData;
-                                self.modal.classList.add('active');
+                                // Prefer Blob/ObjectURL to avoid extremely long data URLs being truncated on download.
+                                return self.canvasToBlob(canvas).then(function(blob) {{
+                                    self.currentBlob = blob;
+                                    self.currentObjectUrl = URL.createObjectURL(blob);
+                                    self.previewImg.src = self.currentObjectUrl;
+                                    self.modal.classList.add('active');
 
-                                // Mobile: show long-press hint
-                                if (/Mobile|Android|iPhone/i.test(navigator.userAgent)) {{
-                                    self.showToast('长按图片保存到相册');
-                                }}
+                                    // Mobile: show long-press hint
+                                    if (/Mobile|Android|iPhone/i.test(navigator.userAgent)) {{
+                                        self.showToast('长按图片保存到相册');
+                                    }}
+                                }});
                             }}).catch(function(error) {{
                                 console.error('Screenshot failed:', error);
                                 self.showToast('截图失败，请重试');
@@ -1436,23 +1477,34 @@ class Formatter:
                         }},
 
                         downloadImage: function() {{
-                            if (!this.currentImageData) return;
+                            if (!this.currentBlob && !this.currentImageData) return;
 
                             var link = document.createElement('a');
                             var date = new Date().toISOString().slice(0, 10);
                             link.download = '金融日报-AI分析-' + date + '.png';
+                            if (this.currentBlob && window.URL && URL.createObjectURL) {{
+                                var downloadUrl = URL.createObjectURL(this.currentBlob);
+                                link.href = downloadUrl;
+                                link.click();
+                                setTimeout(function() {{
+                                    try {{ URL.revokeObjectURL(downloadUrl); }} catch (e) {{}}
+                                }}, 10000);
+                                return;
+                            }}
+
                             link.href = this.currentImageData;
                             link.click();
                         }},
 
                         copyToClipboard: function() {{
                             var self = this;
-                            if (!this.currentImageData) return;
+                            if (!this.currentBlob && !this.currentImageData) return;
 
-                            // Convert data URL to blob
-                            fetch(this.currentImageData)
-                                .then(function(res) {{ return res.blob(); }})
-                                .then(function(blob) {{
+                            var blobPromise = this.currentBlob
+                                ? Promise.resolve(this.currentBlob)
+                                : fetch(this.currentImageData).then(function(res) {{ return res.blob(); }});
+
+                            blobPromise.then(function(blob) {{
                                     var item = new ClipboardItem({{ 'image/png': blob }});
                                     return navigator.clipboard.write([item]);
                                 }})
